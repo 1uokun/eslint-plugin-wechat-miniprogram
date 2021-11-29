@@ -11,7 +11,7 @@ export default function (context) {
         }
       },
       // set(for store)
-      "AssignmentExpression[operator='='] > MemberExpression": node => {
+      "AssignmentExpression[left.type='MemberExpression']": node => {
         const recursion = function (_node) {
           if (_node.object.type === 'MemberExpression') {
             recursion(_node.object);
@@ -22,16 +22,11 @@ export default function (context) {
             });
           }
         };
-  
-        if (node.object.type === 'MemberExpression') {
-          recursion(node);
-        } else {
-          // store中不用
-          context.report({
-            node,
-            message: '如果要触发界面更新，请使用setData()接口',
-          });
+        
+        if (node.left.object.type === 'MemberExpression') {
+          recursion(node.left);
         }
+        // TODO: this.xxx = yyy 非store内使用是否需要加上this.data.xxx提示
       },
       // get
       // 表达式
